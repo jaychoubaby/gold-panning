@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黄金持仓记账 Gold Tracker</title>
+    <link rel="stylesheet" href="src/style.css">
+    <!-- ECharts CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-content">
+                <div>
+                    <h1>Gold Tracker <span class="subtitle">黄金记账</span></h1>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Stats Dashboard -->
+            <section class="stats-grid">
+                <div class="stat-card glass-panel">
+                    <h3>总持仓克重</h3>
+                    <p class="stat-value" id="totalWeight">0.0000 <span class="unit">g</span></p>
+                </div>
+                <div class="stat-card glass-panel">
+                    <h3>持仓总成本</h3>
+                    <p class="stat-value" id="totalCost">¥0.00</p>
+                </div>
+                <div class="stat-card glass-panel">
+                    <h3>平均持有单价</h3>
+                    <p class="stat-value" id="avgPrice">¥0.00 <span class="unit">/g</span></p>
+                </div>
+                <div class="stat-card glass-panel">
+                    <h3>当前参考市值</h3>
+                    <p class="stat-value" id="marketValue">¥0.00</p>
+                    <p class="stat-sub" id="profit">盈亏: ¥0.00</p>
+                </div>
+            </section>
+
+            <!-- Two Column Layout: Chart + ICBC Price -->
+            <div class="chart-price-grid">
+                <!-- Transaction Price Chart -->
+                <section class="chart-section glass-panel">
+                    <div class="chart-header">
+                        <h2>📈 我的操作记录</h2>
+                        <div class="chart-controls">
+                            <button class="filter-btn active" data-period="all">全部</button>
+                            <button class="filter-btn" data-period="m">近一月</button>
+                            <button class="filter-btn" data-period="y">近一年</button>
+                        </div>
+                    </div>
+                    <div id="goldChart" style="width: 100%; height: 350px;"></div>
+                </section>
+
+                <!-- ICBC Live Price -->
+                <section class="icbc-section glass-panel">
+                    <div class="chart-header">
+                        <h2>💰 工行实时金价</h2>
+                        <button id="refreshIframeBtn" class="btn secondary" title="刷新工行页面">
+                            🔄 刷新
+                        </button>
+                    </div>
+                    <div class="icbc-iframe-container">
+                        <iframe id="icbcFrame"
+                            src="https://mybank.icbc.com.cn/icbc/newperbank/perbank3/gold/goldaccrual_query_out.jsp"
+                            title="工行实时金价" sandbox="allow-scripts allow-same-origin"></iframe>
+                        <div class="iframe-overlay" id="iframeLoading">
+                            <div class="spinner"></div>
+                            <p>加载中...</p>
+                        </div>
+                    </div>
+                    <p class="icbc-note">
+                        💡 数据来源：中国工商银行官网
+                    </p>
+                </section>
+            </div>
+
+            <!-- Add & List Section -->
+            <div class="content-split">
+                <!-- Add Form -->
+                <section class="form-section glass-panel">
+                    <h2>新增记录</h2>
+                    <form id="addForm">
+                        <div class="form-group">
+                            <label>交易时间</label>
+                            <input type="datetime-local" id="txnDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>交易类型</label>
+                            <select id="txnType">
+                                <option value="buy">买入</option>
+                                <option value="sell">卖出</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>成交价格 (元/克)</label>
+                            <input type="number" id="txnPrice" step="0.01" required placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>克重 (g)</label>
+                            <input type="number" id="txnWeight" step="0.0001" required placeholder="0.0000">
+                        </div>
+                        <div class="form-group">
+                            <label>总金额 (元)</label>
+                            <input type="number" id="txnAmount" step="0.01" required placeholder="0.00">
+                        </div>
+                        <button type="submit" class="btn primary">保存记录</button>
+                    </form>
+                </section>
+
+                <!-- Transaction List -->
+                <section class="list-section glass-panel">
+                    <h2>交易历史</h2>
+                    <div class="table-container">
+                        <table id="txnTable">
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>类型</th>
+                                    <th>价格(元/克)</th>
+                                    <th>克重(g)</th>
+                                    <th>金额(元)</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script type="module" src="src/db-client.js"></script>
+    <script type="module" src="src/api.js"></script>
+    <script type="module" src="src/app.js"></script>
+</body>
+
+</html>
